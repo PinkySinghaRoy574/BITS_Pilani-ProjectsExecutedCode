@@ -7,6 +7,10 @@ from fancyimpute import IterativeImputer
 from fancyimpute import KNN 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import normalize 
+from sklearn.decomposition import PCA 
 
 
 
@@ -15,6 +19,7 @@ def is_fileExists(filename):
         return True
     else:
         return False
+
     
 def read_csv(filename):
     try:
@@ -83,7 +88,33 @@ def impute_data_knn(filePd,column_names):
 def draw_boxplot(col,title):
     sns.boxplot(col).set_title(title)
     plt.show()
-    
+
+
+def dbscan_outlier_pred(X, eps=0.5, min_samples=5): 
+    data = X.dropna() #needs to change
+    data = pd.DataFrame(scaler.fit_transform(data))
+    pca = PCA(n_components=2)
+    pca.fit(data)
+    plt.scatter(pca.fit_transform(data)[:,0],pca.fit_transform(data)[:,1])
+    df_pca = pd.DataFrame(pca.fit_transform(data)) 
+    df_pca.columns = ['A1', 'A2']
+    db = DBSCAN(eps=0.5, min_samples=5).fit(df_pca)
+    labels = db.labels_
+    colours = {} 
+    colours[0] = 'r'
+    colours[1] = 'g'
+    colours[2] = 'b'
+    colours[-1] = 'k'
+    cvec = [colours[label] for label in labels] 
+    r = plt.scatter(df_pca['A1'], df_pca['A2'], color ='r'); 
+    g = plt.scatter(df_pca['A1'], df_pca['A2'], color ='g'); 
+    b = plt.scatter(df_pca['A1'], df_pca['A2'], color ='b'); 
+    k = plt.scatter(df_pca['A1'], df_pca['A2'], color ='k'); 
+    # plt.figure(figsize =(15, 15)) 
+    plt.scatter(df_pca['A1'], df_pca['A2'], c = cvec) 
+    # Building the legend 
+    plt.legend((r, g, b, k), ('Label 0', 'Label 1', 'Label 2', 'Label -1')) 
+    plt.show()   
     
 #main Method
 file_name = "inputs/Heart Disease.csv"
